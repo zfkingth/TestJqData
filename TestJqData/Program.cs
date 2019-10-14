@@ -35,20 +35,34 @@ namespace TestJqData
             Console.WriteLine("Hello World!");
         }
 
+        public static string QueryInfo(HttpClient client, object body)
+        {
 
+            const string url = "https://dataapi.joinquant.com/apis";
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+
+
+            var content = JsonSerializer.Serialize(body, options);
+
+            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+            //POST请求并等待结果
+            var result = client.PostAsync(url, bodyContent).Result;
+
+
+            return result.Content.ReadAsStringAsync().Result;
+        }
 
         static void QuerySecurityInfo()
         {
-            var url = "https://dataapi.joinquant.com/apis";
             using (var client = new HttpClient())
             {
                 //需要添加System.Web.Extensions
                 //生成JSON请求信息
 
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                };
 
 
                 object body = new GetTokenBody()
@@ -59,31 +73,20 @@ namespace TestJqData
                 };
 
 
-                var content = JsonSerializer.Serialize(body, options);
-
-                var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
-
-                //POST请求并等待结果
-                var result = client.PostAsync(url, bodyContent).Result;
-
 
 
                 //读取返回的TOKEN
-                string token = result.Content.ReadAsStringAsync().Result;
+                string token = QueryInfo(client, body);
+
                 body = new GetSecurityBody
                 {
                     method = "get_security_info",
                     token = token, //token
                     code = "502050.XSHG" //代码
                 };
-                var bodyContentString = JsonSerializer.Serialize(body, options);
-
-                bodyContent = new StringContent(bodyContentString, Encoding.UTF8, "application/json");
-                //POST请求并等待结果
-                result = client.PostAsync(url, bodyContent).Result;
                 //code,display_name,name,start_date,end_date,type,parent
                 //502050.XSHG,上证50B,SZ50B,2015-04-27,2200-01-01,fjb,502048.XSHG
-                var info = result.Content.ReadAsStringAsync().Result;
+                var info = QueryInfo(client, body);
                 Console.WriteLine("Result\n" + info);
 
 
@@ -95,16 +98,13 @@ namespace TestJqData
                     method = "get_query_count",
                     token = token, //token
                 };
-                bodyContentString = JsonSerializer.Serialize(body, options);
 
-                bodyContent = new StringContent(bodyContentString, Encoding.UTF8, "application/json");
-                //POST请求并等待结果
-                result = client.PostAsync(url, bodyContent).Result;
-                //code,display_name,name,start_date,end_date,type,parent
-                //502050.XSHG,上证50B,SZ50B,2015-04-27,2200-01-01,fjb,502048.XSHG
-                info = result.Content.ReadAsStringAsync().Result;
+                info = QueryInfo(client, body);
                 Console.WriteLine("Result\n" + info);
+
             }
+
+
         }
 
     }
