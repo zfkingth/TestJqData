@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -6,33 +7,7 @@ using System.Text.Json;
 namespace TestJqData
 {
 
-    class GetTokenBody
-    {
-        public string method { get; set; }
-        public string mob { get; set; }
-        public string pwd { get; set; }
-    }
-
-
-    class BaseBody
-    {
-
-        public string method { get; set; }
-        public string token { get; set; }
-    }
-    class GetSecurityBody : BaseBody
-    {
-
-        public string code { get; set; }
-    }
-
-    class Get_all_securitiesBody : BaseBody
-    {
-        public string[] types;
-    }
-
-
-    class Program
+     class Program
     {
         static void Main(string[] args)
         {
@@ -51,7 +26,7 @@ namespace TestJqData
 
             var content = JsonSerializer.Serialize(body, options);
 
-            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+            StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             //POST请求并等待结果
             var result = client.PostAsync(url, bodyContent).Result;
@@ -69,7 +44,7 @@ namespace TestJqData
 
 
 
-                object body = new GetTokenBody()
+                object body = new
                 {
                     method = "get_token",
                     mob = "18080802572", //mob是申请JQData时所填写的手机号
@@ -82,7 +57,7 @@ namespace TestJqData
                 //读取返回的TOKEN
                 string token = QueryInfo(client, body);
 
-                body = new GetSecurityBody
+                body = new
                 {
                     method = "get_security_info",
                     token = token, //token
@@ -95,7 +70,7 @@ namespace TestJqData
 
 
                 //查询所有股票代码
-                body = new Get_all_securitiesBody
+                body = new
                 {
 
                 };
@@ -103,14 +78,14 @@ namespace TestJqData
                 //查询剩余条数。
 
 
-                body = new BaseBody
+                body = new
                 {
                     method = "get_query_count",
                     token = token, //token
                 };
 
                 info = QueryInfo(client, body);
-                int num = Convert.ToInt32(info);
+                int num = Convert.ToInt32(info, CultureInfo.InvariantCulture);
                 Console.WriteLine($"当日剩余可调用次数 {num:N0}");
 
             }
