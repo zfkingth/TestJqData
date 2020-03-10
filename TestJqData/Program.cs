@@ -26,13 +26,17 @@ namespace TestJqData
         public string code { get; set; }
     }
 
+    class Get_all_securitiesBody : BaseBody
+    {
+        public string[] types;
+    }
+
 
     class Program
     {
         static void Main(string[] args)
         {
             QuerySecurityInfo();
-            Console.WriteLine("Hello World!");
         }
 
         public static string QueryInfo(HttpClient client, object body)
@@ -90,6 +94,12 @@ namespace TestJqData
                 Console.WriteLine("Result\n" + info);
 
 
+                //查询所有股票代码
+                body = new Get_all_securitiesBody
+                {
+
+                };
+
                 //查询剩余条数。
 
 
@@ -100,7 +110,8 @@ namespace TestJqData
                 };
 
                 info = QueryInfo(client, body);
-                Console.WriteLine("Result\n" + info);
+                int num = Convert.ToInt32(info);
+                Console.WriteLine($"当日剩余可调用次数 {num:N0}");
 
             }
 
